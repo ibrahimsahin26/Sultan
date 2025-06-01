@@ -92,3 +92,43 @@ if goster:
                     df.loc[df_index, "teslim_durumu"] = "Teslim Edildi"
                     save_data(df, DATA_PATH)
                     st.experimental_rerun()
+# --------------------------
+# 📊 RAPORLAMA MODÜLÜ
+# --------------------------
+st.markdown("---")
+st.subheader("📊 Raporlama ve Dışa Aktarım")
+
+df = load_data(DATA_PATH)
+
+with st.expander("🔍 Teslimat Raporu"):
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        rapor_tarih = st.date_input("Tarih Seç", value=tarih, key="rt")
+    with col2:
+        rapor_plaka = st.text_input("Araç Plakası", value="", key="rp")
+    with col3:
+        rapor_tur = st.selectbox("Tur No", options=[None, 1, 2, 3, 4, 5], key="rn")
+    with col4:
+        durum_sec = st.selectbox("Durum", options=["Tümü", "Teslim Edildi", "Bekliyor"], key="rd")
+
+    # Filtreleme işlemi
+    rapor_df = df.copy()
+    rapor_df = rapor_df[rapor_df["tarih"] == pd.to_datetime(rapor_tarih)]
+
+    if rapor_plaka:
+        rapor_df = rapor_df[rapor_df["plaka"] == rapor_plaka.upper()]
+
+    if rapor_tur is not None:
+        rapor_df = rapor_df[rapor_df["tur_no"] == rapor_tur]
+
+    if durum_sec != "Tümü":
+        rapor_df = rapor_df[rapor_df["teslim_durumu"] == durum_sec]
+
+    rapor_df = rapor_df.sort_values(by=["plaka", "tur_no", "sira_no"])
+
+    st.write(f"🔽 **{len(rapor_df)} teslimat kaydı bulundu:**")
+    st.dataframe(rapor_df.reset_index(drop=True), use_container_width=True)
+
+    # CSV çıktısı
+    csv = rapor_df.to_csv(index=False).encode("utf-8")
+    st.download_button("📥 CSV Olarak İndir", data=csv, file_name="teslimat_raporu.csv", mime="text/csv")
