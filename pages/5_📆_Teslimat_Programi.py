@@ -54,12 +54,11 @@ for _, row in df.iterrows():
 haftalar = dict(sorted(haftalar.items(), key=lambda x: x[1]["_tarih_aralik"]))
 
 # 🧾 Tablo başlığı
-cols = ["Hafta"] + ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"]
 st.markdown("""
 <style>
     .st-emotion-cache-13ejsyy p {margin-bottom: 0.3rem;}
 </style>
-"", unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 for hafta_etiketi, veri in haftalar.items():
     with st.expander(hafta_etiketi):
