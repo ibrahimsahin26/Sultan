@@ -104,7 +104,7 @@ if not plan_df.empty:
             not_text = row.get("not", "")
             sira_no = row["sira_no"]
 
-            col1, col2 = st.columns([0.85, 0.15])
+            col1, col2, col3 = st.columns([0.7, 0.15, 0.15])
             with col1:
                 if not_text:
                     st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
@@ -120,6 +120,20 @@ if not plan_df.empty:
                     )]
                     save_data(plan_df, DATA_PATH)
                     st.success(f"{musteri} teslimatı silindi.")
+                    st.experimental_rerun()
+            with col3:
+                yeni_tur = st.selectbox("Aktar →", options=[1, 2, 3, 4, 5], index=tur_no-1, key=f"aktar_{tarih}_{plaka}_{tur_no}_{sira_no}")
+                if yeni_tur != tur_no:
+                    row["tur_no"] = yeni_tur
+                    plan_df = plan_df[~(
+                        (plan_df["tarih"] == tarih) &
+                        (plan_df["plaka"] == plaka) &
+                        (plan_df["tur_no"] == tur_no) &
+                        (plan_df["sira_no"] == sira_no)
+                    )]
+                    plan_df = pd.concat([plan_df, pd.DataFrame([row])], ignore_index=True)
+                    save_data(plan_df, DATA_PATH)
+                    st.success(f"{musteri} teslimatı {tur_no}. turdan {yeni_tur}. tura aktarıldı.")
                     st.experimental_rerun()
         st.markdown("---")
 else:
