@@ -29,69 +29,63 @@ plaka_sec = st.selectbox("🚗 Araç Seçin", araclar_df["plaka"].tolist())
 
 # 📦 Teslimat planı verisi
 plan_df = load_data(DATA_PATH)
-if "not" not in plan_df.columns:
-    plan_df["not"] = ""
 
 # 🔁 1–5 arası tur planlama alanları
 for tur_no in range(1, 6):
     st.markdown(f"### 🚚 {tur_no}. Tur Planı")
     with st.form(f"form_{tur_no}", clear_on_submit=False):
         tur_aciklama = st.text_input(f"{tur_no}. Tur Açıklama", key=f"aciklama_{tur_no}")
-                teslimatlar = []
+        if not tur_aciklama:
+            st.warning("Tur açıklaması girilmesi zorunludur.")
+        teslimatlar = []
         max_teslimat = 20  # maksimum 20 teslimat noktası
         for i in range(max_teslimat):
             musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
-            not_ = ""
-            if musteri:
+            if musteri.strip():
                 not_ = st.text_input(
                     f"↪️ {i+1}. Müşteri Notu",
                     placeholder="örn: Tahsilat yapılacak",
                     key=f"not_{tur_no}_{i}"
                 )
-                teslimatlar.append({"musteri": musteri, "not": not_})
+                teslimatlar.append({"musteri": musteri.strip(), "not": not_.strip()})
             else:
-                break  # boş müşteri girilirse durdur
-    if musteri:
-        not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
-        teslimatlar.append({"musteri": musteri, "not": not_})
-    else:
-        break  # boş girilince durdur
-            musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
-            not_ = ""
-            if musteri:
-                not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
-            teslimatlar.append({"musteri": musteri, "not": not_})
-        
+                break  # boş bırakılırsa döngüyü sonlandır
         kaydet = st.form_submit_button("💾 Kaydet")
 
     if kaydet:
-        for i, teslimat in enumerate(teslimatlar):
-            yeni_kayit = {
-                "tarih": tarih,
-                "plaka": plaka_sec,
-                "tur_no": tur_no,
-                "sira_no": i+1,
-                "musteri": teslimat["musteri"],
-                "not": teslimat["not"],
-                "teslim_durumu": "Planlandı"
-            }
-            plan_df = pd.concat([plan_df, pd.DataFrame([yeni_kayit])], ignore_index=True)
+        if not tur_aciklama:
+            st.error("Kaydedilemedi: Tur açıklaması zorunludur.")
+        elif len(teslimatlar) == 0:
+            st.error("Kaydedilemedi: En az bir müşteri girilmelidir.")
+        else:
+            for i, teslim in enumerate(teslimatlar):
+                yeni_kayit = {
+                    "tarih": tarih,
+                    "plaka": plaka_sec,
+                    "tur_no": tur_no,
+                    "sira_no": i+1,
+                    "musteri": teslim["musteri"],
+                    "not": teslim["not"],
+                    "teslim_durumu": "Planlandı"
+                }
+                plan_df = pd.concat([plan_df, pd.DataFrame([yeni_kayit])], ignore_index=True)
 
-        tur_saat_df = pd.concat([
-            tur_saat_df,
-            pd.DataFrame([{
-                "tarih": tarih,
-                "plaka": plaka_sec,
-                "tur_no": tur_no,
-                "aciklama": tur_aciklama,
-                "cikis_saat": "",
-                "giris_saat": ""
-            }])
-        ], ignore_index=True)
+            # Tur açıklamasını ve saat alanlarını boş olarak kaydet
+            tur_saat_df = pd.concat([
+                tur_saat_df,
+                pd.DataFrame([{
+                    "tarih": tarih,
+                    "plaka": plaka_sec,
+                    "tur_no": tur_no,
+                    "aciklama": tur_aciklama,
+                    "cikis_saat": "",
+                    "giris_saat": ""
+                }])
+            ], ignore_index=True)
 
-        save_data(plan_df, DATA_PATH)
-        tur_saat_df.to_csv(TUR_SAAT_PATH, index=False)
-        st.success(f"{tur_no}. Tur planı ve açıklaması kaydedildi.")
+            save_data(plan_df, DATA_PATH)
+            tur_saat_df.to_csv(TUR_SAAT_PATH, index=False)
+            st.success(f"{tur_no}. Tur planı ve açıklaması kaydedildi.")
 
 # 📋 Planlanan teslimatları göster
 st.markdown("---")
@@ -100,7 +94,6 @@ st.subheader("📋 Planlanan Teslimatlar")
 if not plan_df.empty:
     plan_df["tarih"] = pd.to_datetime(plan_df["tarih"])
     plan_df = plan_df.sort_values(by=["tarih", "tur_no", "sira_no"])
-
     grouped = plan_df.groupby(["tarih", "plaka", "tur_no"])
 
     for (tarih, plaka, tur_no), grup in grouped:
