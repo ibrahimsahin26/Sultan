@@ -37,9 +37,17 @@ for tur_no in range(1, 6):
     st.markdown(f"### 🚚 {tur_no}. Tur Planı")
     with st.form(f"form_{tur_no}", clear_on_submit=False):
         tur_aciklama = st.text_input(f"{tur_no}. Tur Açıklama", key=f"aciklama_{tur_no}")
-        teslimat_sayisi = st.slider(f"Teslimat Nokta Sayısı", 1, 10, key=f"adet_{tur_no}")
+        # 🔁 Teslimat noktaları otomatik artsın
         teslimatlar = []
-        for i in range(teslimat_sayisi):
+        max_teslimat = 20  # en fazla 20 satıra izin veriyoruz
+        for i in range(max_teslimat):
+    musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
+    not_ = ""
+    if musteri:
+        not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
+        teslimatlar.append({"musteri": musteri, "not": not_})
+    else:
+        break  # boş girilince durdur
             musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
             not_ = ""
             if musteri:
