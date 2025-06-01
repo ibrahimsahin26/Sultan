@@ -54,3 +54,41 @@ filtre_df = df[
 ].sort_values("sira_no")
 
 st.dataframe(filtre_df.reset_index(drop=True), use_container_width=True)
+# --------------------------
+# 🚚 ŞOFÖR GÖRÜNÜMÜ ve BUTONLAR
+# --------------------------
+st.markdown("---")
+st.subheader("🚚 Şoför Paneli - Teslimat Takibi")
+
+with st.form("sofor_formu"):
+    tarih_sec = st.date_input("📅 Tarih", value=tarih, key="t2")
+    plaka_sec = st.text_input("🚗 Plaka", value=plaka, key="p2")
+    tur_sec = st.selectbox("📦 Tur No", [1, 2, 3, 4, 5], index=tur_no-1, key="tur2")
+    goster = st.form_submit_button("📋 Planı Göster")
+
+if goster:
+    df = load_data(DATA_PATH)
+    aktif_tur = df[
+        (df["tarih"] == pd.to_datetime(tarih_sec)) &
+        (df["plaka"] == plaka_sec.upper()) &
+        (df["tur_no"] == tur_sec)
+    ].sort_values("sira_no").reset_index(drop=True)
+
+    if aktif_tur.empty:
+        st.warning("Bu tarihte seçilen araç ve tur için plan bulunamadı.")
+    else:
+        st.write(f"📦 **{plaka_sec.upper()} / {tur_sec}. Tur** için teslimat listesi:")
+        for i, row in aktif_tur.iterrows():
+            cols = st.columns([5, 2])
+            cols[0].markdown(f"**{row['sira_no']}. {row['musteri']}**  —  `{row['teslim_durumu']}`")
+            if row["teslim_durumu"] != "Teslim Edildi":
+                if cols[1].button("✅ Teslim Edildi", key=f"teslim_{i}"):
+                    df_index = df[
+                        (df["tarih"] == row["tarih"]) &
+                        (df["plaka"] == row["plaka"]) &
+                        (df["tur_no"] == row["tur_no"]) &
+                        (df["sira_no"] == row["sira_no"])
+                    ].index
+                    df.loc[df_index, "teslim_durumu"] = "Teslim Edildi"
+                    save_data(df, DATA_PATH)
+                    st.experimental_rerun()
