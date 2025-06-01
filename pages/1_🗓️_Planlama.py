@@ -29,6 +29,8 @@ plaka_sec = st.selectbox("🚗 Araç Seçin", araclar_df["plaka"].tolist())
 
 # 📦 Teslimat planı verisi
 plan_df = load_data(DATA_PATH)
+if "not" not in plan_df.columns:
+    plan_df["not"] = ""
 
 # 🔁 1–5 arası tur planlama alanları
 for tur_no in range(1, 6):
@@ -39,26 +41,26 @@ for tur_no in range(1, 6):
         teslimatlar = []
         for i in range(teslimat_sayisi):
             musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
-not_ = ""
-if musteri:
-    not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
-teslimatlar.append({"musteri": musteri, "not": not_})
-            teslimatlar.append(musteri)
+            not_ = ""
+            if musteri:
+                not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
+            teslimatlar.append({"musteri": musteri, "not": not_})
+        
         kaydet = st.form_submit_button("💾 Kaydet")
 
     if kaydet:
-        for i, musteri in enumerate(teslimatlar):
+        for i, teslimat in enumerate(teslimatlar):
             yeni_kayit = {
                 "tarih": tarih,
                 "plaka": plaka_sec,
                 "tur_no": tur_no,
                 "sira_no": i+1,
-                "musteri": musteri,
+                "musteri": teslimat["musteri"],
+                "not": teslimat["not"],
                 "teslim_durumu": "Planlandı"
             }
             plan_df = pd.concat([plan_df, pd.DataFrame([yeni_kayit])], ignore_index=True)
 
-        # Tur açıklamasını ve saat alanlarını boş olarak kaydet
         tur_saat_df = pd.concat([
             tur_saat_df,
             pd.DataFrame([{
@@ -74,11 +76,11 @@ teslimatlar.append({"musteri": musteri, "not": not_})
         save_data(plan_df, DATA_PATH)
         tur_saat_df.to_csv(TUR_SAAT_PATH, index=False)
         st.success(f"{tur_no}. Tur planı ve açıklaması kaydedildi.")
+
 # 📋 Planlanan teslimatları göster
 st.markdown("---")
 st.subheader("📋 Planlanan Teslimatlar")
 
-# Eğer plan_df boş değilse
 if not plan_df.empty:
     plan_df["tarih"] = pd.to_datetime(plan_df["tarih"])
     plan_df = plan_df.sort_values(by=["tarih", "tur_no", "sira_no"])
@@ -87,7 +89,7 @@ if not plan_df.empty:
 
     for (tarih, plaka, tur_no), grup in grouped:
         st.markdown(f"### 🛻 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – 🚗 {plaka}")
-        for i, row in grup.iterrows():
+        for _, row in grup.iterrows():
             musteri = row["musteri"]
             not_text = row.get("not", "")
             if not_text:
