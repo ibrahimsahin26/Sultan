@@ -92,7 +92,8 @@ st.markdown("---")
 st.subheader("📋 Planlanan Teslimatlar")
 
 if not plan_df.empty:
-    plan_df["tarih"] = pd.to_datetime(plan_df["tarih"])
+    plan_df["tarih"] = pd.to_datetime(plan_df["tarih"], errors="coerce")
+    plan_df = plan_df.dropna(subset=["tarih"])
     plan_df = plan_df.sort_values(by=["tarih", "tur_no", "sira_no"])
     grouped = plan_df.groupby(["tarih", "plaka", "tur_no"])
 
