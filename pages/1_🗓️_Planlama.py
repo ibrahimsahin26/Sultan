@@ -39,6 +39,10 @@ for tur_no in range(1, 6):
         teslimatlar = []
         for i in range(teslimat_sayisi):
             musteri = st.text_input(f"{i+1}. Müşteri Adı", key=f"musteri_{tur_no}_{i}")
+not_ = ""
+if musteri:
+    not_ = st.text_input(f"↪️ {i+1}. Müşteri Notu", placeholder="örn: Tahsilat yapılacak", key=f"not_{tur_no}_{i}")
+teslimatlar.append({"musteri": musteri, "not": not_})
             teslimatlar.append(musteri)
         kaydet = st.form_submit_button("💾 Kaydet")
 
