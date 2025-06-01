@@ -1,5 +1,4 @@
 import os
-
 if os.path.exists(TUR_SAAT_PATH) and os.path.getsize(TUR_SAAT_PATH) > 0:
     tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
 else:
