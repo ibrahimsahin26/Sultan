@@ -9,7 +9,7 @@ st.set_page_config(page_title="Teslimat Programı", layout="wide")
 st.title("📆 Teslimat Programı")
 
 # Dosya kontrolü
-if not os.path.exists(TUR_SAAT_PATH) or os.path.getsize(TUR_SAAT_PATH) == 0:
+if not os.path.exists(TUR_SAAT_PATH):
     st.info("Henüz tanımlı tur bulunmuyor.")
     st.stop()
 
@@ -29,10 +29,6 @@ pazartesi = bugun - timedelta(days=bugun.weekday())
 pazar = pazartesi + timedelta(days=6)
 
 haftalik_df = df[(df["tarih"] >= pazartesi) & (df["tarih"] <= pazar)]
-
-if haftalik_df.empty:
-    st.info("Bu hafta için tanımlı tur bulunmamaktadır.")
-    st.stop()
 
 # Gün isimleri
 hafta_gunleri = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
