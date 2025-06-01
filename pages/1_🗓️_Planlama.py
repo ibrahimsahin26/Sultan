@@ -1,8 +1,9 @@
+import os
 
-import streamlit as st
-import pandas as pd
-from datetime import datetime
-from utils.io import load_data, save_data, load_arac_listesi
+if os.path.exists(TUR_SAAT_PATH) and os.path.getsize(TUR_SAAT_PATH) > 0:
+    tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
+else:
+    tur_saat_df = pd.DataFrame(columns=["tarih", "plaka", "tur_no", "aciklama", "cikis_saat", "giris_saat"])
 
 DATA_PATH = "data/teslimatlar.csv"
 ARAC_PATH = "data/arac_listesi.csv"
