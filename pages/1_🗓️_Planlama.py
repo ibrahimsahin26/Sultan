@@ -7,6 +7,14 @@ if not os.path.exists(TUR_SAAT_PATH) or os.path.getsize(TUR_SAAT_PATH) == 0:
     ]).to_csv(TUR_SAAT_PATH, index=False)
 
 # Artık dosya dolu veya en azından başlıklı olduğuna göre okuyabiliriz
+# ⛑ tur_saatleri.csv dosyası boşsa hata vermemesi için kontrol
+if not os.path.exists(TUR_SAAT_PATH) or os.path.getsize(TUR_SAAT_PATH) == 0:
+    # Dosya yoksa veya tamamen boşsa, başlıksız hatayı önlemek için başlıkları tanımlayarak oluştur
+    pd.DataFrame(columns=[
+        "tarih", "plaka", "tur_no", "aciklama", "cikis_saat", "giris_saat"
+    ]).to_csv(TUR_SAAT_PATH, index=False)
+
+# Artık dosya dolu veya en azından başlıklı olduğuna göre okuyabiliriz
 tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
 
 # 📁 Dosya yolları
