@@ -63,7 +63,7 @@ for tur_no in range(1, 6):
                     "tarih": tarih,
                     "plaka": plaka_sec,
                     "tur_no": tur_no,
-                    "sira_no": i+1,
+                    "sira_no": i + 1,
                     "musteri": teslim["musteri"],
                     "not": teslim["not"],
                     "teslim_durumu": "Planlandı"
@@ -110,7 +110,7 @@ if not plan_df.empty:
                 else:
                     st.markdown(f"- **{musteri}**")
             with col2:
-                if st.button("🗑️ Sil", key=f"sil_{tarih}_{plaka}_{tur_no}_{sira_no}"):
+                if st.button("🗑️ Sil", key=f"sil_{tarih}_{plaka}_{tur_no}_{sira_no}_{i}"):
                     plan_df = plan_df[~(
                         (plan_df["tarih"] == tarih) &
                         (plan_df["plaka"] == plaka) &
@@ -125,7 +125,7 @@ if not plan_df.empty:
                     tur_index = int(tur_no) - 1 if pd.notna(tur_no) and int(tur_no) in [1, 2, 3, 4, 5] else 0
                 except:
                     tur_index = 0
-                yeni_tur = st.selectbox("Aktar →", options=[1, 2, 3, 4, 5], index=tur_index, key=f"aktar_{tarih}_{plaka}_{tur_no}_{sira_no}")
+                yeni_tur = st.selectbox("Aktar →", options=[1, 2, 3, 4, 5], index=tur_index, key=f"aktar_{tarih}_{plaka}_{tur_no}_{sira_no}_{i}")
                 if yeni_tur != tur_no:
                     row["tur_no"] = yeni_tur
                     plan_df = plan_df[~(
