@@ -20,19 +20,19 @@ tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
 
 # 📄 Sayfa ayarı
 st.set_page_config(page_title="Dağıtım Planlama", layout="centered")
-st.title("🗓️ Dağıtım Planlama")
+st.title("\U0001F5D3️ Dağıtım Planlama")
 
 # 📅 Tarih ve plaka seçimi
-tarih = st.date_input("📅 Tarih Seçin", value=datetime.today())
+tarih = st.date_input("\U0001F4C5 Tarih Seçin", value=datetime.today())
 araclar_df = load_arac_listesi(ARAC_PATH)
-plaka_sec = st.selectbox("🚗 Araç Seçin", araclar_df["plaka"].tolist())
+plaka_sec = st.selectbox("\U0001F697 Araç Seçin", araclar_df["plaka"].tolist())
 
 # 📦 Teslimat planı verisi
 plan_df = load_data(DATA_PATH)
 
 # 🔁 1–5 arası tur planlama alanları
 for tur_no in range(1, 6):
-    st.markdown(f"### 🚚 {tur_no}. Tur Planı")
+    st.markdown(f"### \U0001F69A {tur_no}. Tur Planı")
     with st.form(f"form_{tur_no}", clear_on_submit=False):
         tur_aciklama = st.text_input(f"{tur_no}. Tur Açıklama", key=f"aciklama_{tur_no}")
         if not tur_aciklama:
@@ -50,7 +50,7 @@ for tur_no in range(1, 6):
                 teslimatlar.append({"musteri": musteri.strip(), "not": not_.strip()})
             else:
                 break  # boş bırakılırsa döngüyü sonlandır
-        kaydet = st.form_submit_button("💾 Kaydet")
+        kaydet = st.form_submit_button("\U0001F4BE Kaydet")
 
     if kaydet:
         if not tur_aciklama:
@@ -89,7 +89,7 @@ for tur_no in range(1, 6):
 
 # 📋 Planlanan teslimatları göster
 st.markdown("---")
-st.subheader("📋 Planlanan Teslimatlar")
+st.subheader("\U0001F4CB Planlanan Teslimatlar")
 
 if not plan_df.empty:
     plan_df["tarih"] = pd.to_datetime(plan_df["tarih"], errors="coerce")
@@ -98,7 +98,7 @@ if not plan_df.empty:
     grouped = plan_df.groupby(["tarih", "plaka", "tur_no"])
 
     for (tarih, plaka, tur_no), grup in grouped:
-        st.markdown(f"### 🛻 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – 🚗 {plaka}")
+        st.markdown(f"### \U0001F697 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – \U0001F697 {plaka}")
         for i, row in grup.iterrows():
             musteri = row["musteri"]
             not_text = row.get("not", "")
@@ -106,14 +106,12 @@ if not plan_df.empty:
 
             col1, col2 = st.columns([0.85, 0.15])
             with col1:
-                with col1:
-    if not_text:
-        st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
-    else:
-        st.markdown(f"- **{musteri}**")
+                if not_text:
+                    st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
+                else:
+                    st.markdown(f"- **{musteri}**")
             with col2:
                 if st.button("🗑️ Sil", key=f"sil_{tarih}_{plaka}_{tur_no}_{sira_no}"):
-                    # Silinecek satırı plan_df'ten bulup çıkar
                     plan_df = plan_df[~(
                         (plan_df["tarih"] == tarih) &
                         (plan_df["plaka"] == plaka) &
