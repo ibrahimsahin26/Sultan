@@ -98,14 +98,28 @@ if not plan_df.empty:
     grouped = plan_df.groupby(["tarih", "plaka", "tur_no"])
 
     for (tarih, plaka, tur_no), grup in grouped:
-        st.markdown(f"### 🛻 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – 🚗 {plaka}")
-        for _, row in grup.iterrows():
-            musteri = row["musteri"]
-            not_text = row.get("not", "")
-            if not_text:
-                st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
-            else:
-                st.markdown(f"- **{musteri}**")
-        st.markdown("---")
+    st.markdown(f"### 🛻 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – 🚗 {plaka}")
+    for i, row in grup.iterrows():
+        musteri = row["musteri"]
+        not_text = row.get("not", "")
+        sira_no = row["sira_no"]
+
+        col1, col2 = st.columns([0.85, 0.15])
+        with col1:
+            st.markdown(f"- **{musteri}**  \n  {'🔖 _'+not_text+'_' if not_text else ''}")
+        with col2:
+            if st.button("🗑️ Sil", key=f"sil_{tarih}_{plaka}_{tur_no}_{sira_no}"):
+                # Silinecek satırı plan_df'ten bulup çıkar
+                plan_df = plan_df[~(
+                    (plan_df["tarih"] == tarih) &
+                    (plan_df["plaka"] == plaka) &
+                    (plan_df["tur_no"] == tur_no) &
+                    (plan_df["sira_no"] == sira_no)
+                )]
+                # Veriyi kaydet
+                save_data(plan_df, DATA_PATH)
+                st.success(f"{musteri} teslimatı silindi.")
+                st.experimental_rerun()
+    st.markdown("---")
 else:
     st.info("Henüz planlanan bir teslimat bulunmuyor.")
