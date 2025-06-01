@@ -106,7 +106,11 @@ if not plan_df.empty:
 
             col1, col2 = st.columns([0.85, 0.15])
             with col1:
-                st.markdown(f"- **{musteri}**  \n  {'🔖 _'+not_text+'_' if not_text else ''}")
+                with col1:
+    if not_text:
+        st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
+    else:
+        st.markdown(f"- **{musteri}**")
             with col2:
                 if st.button("🗑️ Sil", key=f"sil_{tarih}_{plaka}_{tur_no}_{sira_no}"):
                     # Silinecek satırı plan_df'ten bulup çıkar
