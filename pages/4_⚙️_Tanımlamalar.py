@@ -26,4 +26,4 @@ if ekle_arac and yeni_plaka:
         araclar_df = pd.concat([araclar_df, yeni], ignore_index=True)
         save_arac_listesi(araclar_df, ARAC_PATH)
         st.success("Araç eklendi.")
-        st.experimental_rerun()
+        st.rerun()
