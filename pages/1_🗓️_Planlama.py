@@ -70,3 +70,26 @@ for tur_no in range(1, 6):
         save_data(plan_df, DATA_PATH)
         tur_saat_df.to_csv(TUR_SAAT_PATH, index=False)
         st.success(f"{tur_no}. Tur planı ve açıklaması kaydedildi.")
+# 📋 Planlanan teslimatları göster
+st.markdown("---")
+st.subheader("📋 Planlanan Teslimatlar")
+
+# Eğer plan_df boş değilse
+if not plan_df.empty:
+    plan_df["tarih"] = pd.to_datetime(plan_df["tarih"])
+    plan_df = plan_df.sort_values(by=["tarih", "tur_no", "sira_no"])
+
+    grouped = plan_df.groupby(["tarih", "plaka", "tur_no"])
+
+    for (tarih, plaka, tur_no), grup in grouped:
+        st.markdown(f"### 🛻 {tur_no}. Tur – {tarih.strftime('%d %B %Y')} – 🚗 {plaka}")
+        for i, row in grup.iterrows():
+            musteri = row["musteri"]
+            not_text = row.get("not", "")
+            if not_text:
+                st.markdown(f"- **{musteri}**  \n  🔖 _{not_text}_")
+            else:
+                st.markdown(f"- **{musteri}**")
+        st.markdown("---")
+else:
+    st.info("Henüz planlanan bir teslimat bulunmuyor.")
