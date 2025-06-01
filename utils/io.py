@@ -9,3 +9,12 @@ def load_data(path):
 
 def save_data(df, path):
     df.to_csv(path, index=False)
+
+def load_arac_listesi(path="data/arac_listesi.csv"):
+    if os.path.exists(path):
+        return pd.read_csv(path)
+    else:
+        return pd.DataFrame(columns=["plaka", "aciklama"])
+
+def save_arac_listesi(df, path="data/arac_listesi.csv"):
+    df.to_csv(path, index=False)
