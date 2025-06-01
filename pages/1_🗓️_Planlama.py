@@ -1,4 +1,28 @@
+
 import os
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+from utils.io import load_data, save_data, load_arac_listesi
+
+# 📁 Dosya yolları
+DATA_PATH = "data/teslimatlar.csv"
+ARAC_PATH = "data/arac_listesi.csv"
+TUR_SAAT_PATH = "data/tur_saatleri.csv"
+
+# 📄 Sayfa ayarı
+st.set_page_config(page_title="Dağıtım Planlama", layout="centered")
+st.title("🗓️ Dağıtım Planlama")
+
+# 📅 Tarih ve plaka seçimi
+tarih = st.date_input("📅 Tarih Seçin", value=datetime.today())
+araclar_df = load_arac_listesi(ARAC_PATH)
+plaka_sec = st.selectbox("🚗 Araç Seçin", araclar_df["plaka"].tolist())
+
+# 📦 Teslimat planı verisi
+plan_df = load_data(DATA_PATH)
+
+# ⛑ tur_saatleri.csv dosyası boşsa hata vermemesi için kontrol
 if os.path.exists(TUR_SAAT_PATH) and os.path.getsize(TUR_SAAT_PATH) > 0:
     tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
 else:
@@ -6,25 +30,7 @@ else:
         "tarih", "plaka", "tur_no", "aciklama", "cikis_saat", "giris_saat"
     ])
 
-DATA_PATH = "data/teslimatlar.csv"
-ARAC_PATH = "data/arac_listesi.csv"
-TUR_SAAT_PATH = "data/tur_saatleri.csv"
-
-st.set_page_config(page_title="Dağıtım Planlama", layout="centered")
-st.title("🗓️ Dağıtım Planlama")
-
-tarih = st.date_input("📅 Tarih Seçin", value=datetime.today())
-araclar_df = load_arac_listesi(ARAC_PATH)
-plaka_sec = st.selectbox("🚗 Araç Seçin", araclar_df["plaka"].tolist())
-
-plan_df = load_data(DATA_PATH)
-
-# CSV boşsa hata vermesin diye kontrol ekledik
-if os.path.exists(TUR_SAAT_PATH) and os.path.getsize(TUR_SAAT_PATH) > 0:
-    tur_saat_df = pd.read_csv(TUR_SAAT_PATH)
-else:
-    tur_saat_df = pd.DataFrame(columns=["tarih", "plaka", "tur_no", "aciklama", "cikis_saat", "giris_saat"])
-
+# 🔁 1–5 arası tur planlama alanları
 for tur_no in range(1, 6):
     st.markdown(f"### 🚚 {tur_no}. Tur Planı")
     with st.form(f"form_{tur_no}", clear_on_submit=False):
